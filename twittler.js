@@ -3,7 +3,7 @@ $(document).ready(function(){
   $body.html('');
 
   // Default tweetList display to the home screen (all tweets).
-  var blargh = 'home';  
+  var state = 'home';  
 
   // Add a list to the body to append tweets to.
   var $tweetList = $('<ul></ul>');
@@ -35,7 +35,7 @@ $(document).ready(function(){
           '<p class="tweet_heading">' + 
             '<span class="user">' + tweet.user + '</span>' + 
             '<span class="tweeted_at">' + ' @' + tweet.user + ' </span>' + 
-            '<span class="created_at">' + tweet.created_at + '</span>' +
+            '<span class="created_at">' + jQuery.timeago(tweet.created_at) + '</span>' +
           '</p>' +
 
           '<p class="message">' + tweet.message + '</p>' +
@@ -50,17 +50,17 @@ $(document).ready(function(){
       $tweet.appendTo($tweetList);
       index -= 1;
     }
-    
+
     var $usernames = $('.user');
     $usernames.click(refineTweetList);
   };
 
   var refineTweetList = function() {
-    blargh = $(this).text();
-    updateTweets(blargh);
+    state = $(this).text();
+    updateTweets(state);
   };
 
-  updateTweets(blargh);
-  setInterval(function() { updateTweets(blargh); }, 1000);
+  updateTweets(state);
+  setInterval(function() { updateTweets(state); }, 1000);
   
 });
