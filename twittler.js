@@ -2,6 +2,34 @@ $(document).ready(function(){
   var $body = $('body');
   $body.html('');
 
+  var $newTweetInput = $('<input></input>');
+  $newTweetInput.attr('placeholder', 'Type Tweet Here!');
+  $newTweetInput.appendTo($body);
+
+  var $newTweetButton = $('<button></button>');
+  $newTweetButton.html('Tweet!');
+  $newTweetButton.appendTo($body);
+
+  var addUserTweet = function() {
+    var message = $newTweetInput.val();
+    if (!message) {
+      alert('Tweet cannot be blank!');
+      return;
+    }
+
+    var tweet = {};
+    tweet.user = 'Guest';
+    tweet.message = message;
+    tweet.created_at = new Date();
+
+    streams.home.push(tweet);
+
+    $newTweetInput.val('');
+    updateTweets(state);
+  };
+
+  $newTweetButton.click(addUserTweet);
+
   // Default tweetList display to the home screen (all tweets).
   var state = 'home';  
 
