@@ -2,13 +2,30 @@ $(document).ready(function(){
   var $body = $('body');
   $body.html('');
 
+// Bootstrap----------------------------------------------
+  var $app = $('<div class="container">' + 
+                 '<div class="row">' + 
+                   '<div id="profile" class="col-md-3">Profile Here</div>' +
+                   '<div id="feed" class="col-md-6"></div>' +
+                   '<div id="otherJunk" class="col-md-3">Other Junk Here</div>' +
+                 '</div>' +
+               '</div>');
+
+  $app.appendTo($body);
+
+  var $profile = $('#profile');
+  var $feed = $('#feed');
+  var $otherJunk = $('#otherJunk');
+// -------------------------------------------------------
+
+// -------------------------------------------------------
   var $newTweetInput = $('<input></input>');
   $newTweetInput.attr('placeholder', 'Type Tweet Here!');
-  $newTweetInput.appendTo($body);
+  $newTweetInput.appendTo($feed);
 
-  var $newTweetButton = $('<button></button>');
+  var $newTweetButton = $('<button id="newTweetButton"></button>');
   $newTweetButton.html('Tweet!');
-  $newTweetButton.appendTo($body);
+  $newTweetButton.appendTo($feed);
 
   var addUserTweet = function() {
     var message = $newTweetInput.val();
@@ -25,17 +42,18 @@ $(document).ready(function(){
     streams.home.push(tweet);
 
     $newTweetInput.val('');
-    updateTweets(state);
+    updateTweets(state);   //Should I keep this here?
   };
 
   $newTweetButton.click(addUserTweet);
+  // -------------------------------------------------------
 
   // Default tweetList display to the home screen (all tweets).
   var state = 'home';  
 
   // Add a list to the body to append tweets to.
   var $tweetList = $('<ul></ul>');
-  $tweetList.appendTo($body);
+  $tweetList.appendTo($feed);
 
   // Update tweets in tweetList
   var index;
@@ -89,6 +107,6 @@ $(document).ready(function(){
   };
 
   updateTweets(state);
-  setInterval(function() { updateTweets(state); }, 1000);
+  setInterval(function() { updateTweets(state); }, 5000);
   
 });
