@@ -1,32 +1,68 @@
 $(document).ready(function(){
+  
+  // Declare all variables
+  var state = 'home';
+  var index;
+  // Declare HTML-generating selectors
   var $body = $('body');
   $body.html('');
-
-// Bootstrap----------------------------------------------
   var $app = $('<div class="container">' + 
                  '<div class="row">' + 
-                   '<div id="profile" class="col-md-3">Profile Here</div>' +
+                   '<div id="dashboard" class="col-md-3">Profile Here</div>' +
                    '<div id="feed" class="col-md-6"></div>' +
                    '<div id="otherJunk" class="col-md-3">Other Junk Here</div>' +
                  '</div>' +
                '</div>');
-
   $app.appendTo($body);
+  var $dashboard = $('#dashboard');
+  $dashboard.html('<a class="avatarLink">' + 
+                    '<img class="avatarImg"></img>' +
+                  '</a>' +
 
-  var $profile = $('#profile');
+                  '<a>UserName</a>' +
+                  '<a>@<span>UserName</span></a>' +
+
+                  '<div>' + 
+                    '<ul>' +
+                      '<li>' +
+                        '<a>' +
+                          '<span>Tweets</span>' +
+                          '<span>28</span>' +
+                        '</a>' +
+                      '</li>' +
+                      '<li>' +
+                        '<a>' +
+                          '<span>Following</span>' +
+                          '<span>10</span>' +
+                        '</a>' +
+                      '</li>' +
+                      '<li>' +
+                        '<a>' +
+                          '<span>Followers</span>' +
+                          '<span>11</span>' +
+                        '</a>' +
+                      '</li>' +
+                    '</ul>' +  
+                  '</div>');
+  var $newTweets = $('<div id="newTweets"></div>');
+  var $newTweetInput = $('<input></input>');
+  var $newTweetButton = $('<button id="newTweetButton">Tweet!</button>');
+  var $tweetList = $('<ul></ul>');
+
+  // Declare dependent selectors
   var $feed = $('#feed');
   var $otherJunk = $('#otherJunk');
-// -------------------------------------------------------
+  var $avatarLink = $('.avatarLink');
+  var $avatarImg = $('.avatarImg');
 
-// -------------------------------------------------------
-  var $newTweetInput = $('<input></input>');
-  $newTweetInput.attr('placeholder', 'Type Tweet Here!');
-  $newTweetInput.appendTo($feed);
+  // Append all components (Structure)
+  $newTweets.appendTo($feed);
+    $newTweetInput.appendTo($newTweets);
+    $newTweetButton.appendTo($newTweets);
+  $tweetList.appendTo($feed);
 
-  var $newTweetButton = $('<button id="newTweetButton"></button>');
-  $newTweetButton.html('Tweet!');
-  $newTweetButton.appendTo($feed);
-
+  
+  // Declare all functions
   var addUserTweet = function() {
     var message = $newTweetInput.val();
     if (!message) {
@@ -45,18 +81,6 @@ $(document).ready(function(){
     updateTweets(state);   //Should I keep this here?
   };
 
-  $newTweetButton.click(addUserTweet);
-  // -------------------------------------------------------
-
-  // Default tweetList display to the home screen (all tweets).
-  var state = 'home';  
-
-  // Add a list to the body to append tweets to.
-  var $tweetList = $('<ul></ul>');
-  $tweetList.appendTo($feed);
-
-  // Update tweets in tweetList
-  var index;
   var updateTweets = function(currentUser) {
     $tweetList.html('');
     
@@ -86,27 +110,65 @@ $(document).ready(function(){
 
           '<p class="message">' + tweet.message + '</p>' +
   
-          '<button class="btn btn-primary">' + 'Reply Icon' + '</button>' +
-          '<button class="btn btn-success">' + 'Retweet Icon' + '</button>' +
-          '<button class="btn btn-info">' + 'Like Icon' + '</button>' +
-          '<button class="btn btn-warning">' + 'More Icon' + '</button>' +
+          '<button class="btn btn-primary reply">' + 'Reply Icon' + '</button>' +
+          '<button class="btn btn-success retweet">' + 'Retweet Icon' + '</button>' +
+          '<button class="btn btn-info like">' + 'Like Icon' + '</button>' +
+          '<button class="btn btn-warning more">' + 'More Icon' + '</button>' +
   
         '</li>');
        
       $tweet.appendTo($tweetList);
       index -= 1;
     }
-
-    var $usernames = $('.user');
-    $usernames.click(refineTweetList);
+    setupFeed();
   };
 
   var refineTweetList = function() {
     state = $(this).text();
     updateTweets(state);
+  };  
+  
+  var hi = function() {           // Make this do something valuable!!!
+    $(this).text('hi');
   };
 
-  updateTweets(state);
-  setInterval(function() { updateTweets(state); }, 5000);
+  var setupFeed = function() {
+    var $replyButton = $('.reply');
+    var $retweetButton = $('.retweet');
+    var $likeButton = $('.like');
+    var $moreButton = $('.more');
+    var $usernames = $('.user');
+
+    $newTweetInput.attr('placeholder', 'Type Tweet Here!');
+    
+    $newTweetButton.click(addUserTweet);
+    $usernames.click(refineTweetList);
+    $replyButton.click(hi);           // Need the setInterval to stop when clicked!!!
+    $retweetButton.click(hi);
+    $likeButton.click(hi);
+    $moreButton.click(hi);
+  };
+
+
+  // Create an init() function
+  var init = function() {
+    $avatarLink.attr('href', '#');
+    $avatarImg.attr('src', 'samuel.jpg');
+    // $newTweetInput.attr('placeholder', 'Type Tweet Here!');
+    // $newTweetButton.click(addUserTweet);
+    updateTweets(state);
+    setInterval(function() { updateTweets(state); }, 5000);
+  };
   
+  // External/Global Event Handlers
+  // $newTweetButton.click(addUserTweet);
+
+  // Run init() 
+  // $body.html('');
+  // $avatarLink.attr('href', '#');
+  // $avatarImg.attr('src', 'samuel.jpg');
+  // $newTweetInput.attr('placeholder', 'Type Tweet Here!');
+
+  init();
+
 });
