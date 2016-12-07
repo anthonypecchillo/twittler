@@ -1,69 +1,33 @@
 $(document).ready(function(){
   
-  // Declare all variables
-  var state = 'home';
-  var index;
-  // Declare HTML-generating selectors
-  var $body = $('body');
-  $body.html('');
-  var $app = $('<div class="container">' + 
-                 '<div class="row">' + 
-                   '<div id="dashboard" class="col-md-3">Profile Here</div>' +
-                   '<div id="feed" class="col-md-6"></div>' +
-                   '<div id="otherJunk" class="col-md-3">Other Junk Here</div>' +
-                 '</div>' +
-               '</div>');
-  $app.appendTo($body);
-  var $dashboard = $('#dashboard');
-  $dashboard.html('<a class="avatarLink">' + 
-                    '<img class="avatarImg"></img>' +
-                  '</a>' +
+  var $tweetList = $('#tweetList');
+  var $newTweetInput = $('#newTweetInput');
+  var $newTweetButton = $('#newTweetButton');
 
-                  '<a>UserName</a>' +
-                  '<a>@<span>UserName</span></a>' +
+  var selectedUser;
 
-                  '<div>' + 
-                    '<ul>' +
-                      '<li>' +
-                        '<a>' +
-                          '<span>Tweets</span>' +
-                          '<span>28</span>' +
-                        '</a>' +
-                      '</li>' +
-                      '<li>' +
-                        '<a>' +
-                          '<span>Following</span>' +
-                          '<span>10</span>' +
-                        '</a>' +
-                      '</li>' +
-                      '<li>' +
-                        '<a>' +
-                          '<span>Followers</span>' +
-                          '<span>11</span>' +
-                        '</a>' +
-                      '</li>' +
-                    '</ul>' +  
-                  '</div>');
-  var $newTweets = $('<div id="newTweets"></div>');
-  var $newTweetInput = $('<input></input>');
-  var $newTweetButton = $('<button id="newTweetButton">Tweet!</button>');
-  var $tweetList = $('<ul></ul>');
+  function getSelectedTweets() {
+    if (streams.user.hasOwnProperty(selectedUser)) {
+      return streams.users[selectedUser];
+    }
+    return streams.home;
+  }
 
-  // Declare dependent selectors
-  var $feed = $('#feed');
-  var $otherJunk = $('#otherJunk');
-  var $avatarLink = $('.avatarLink');
-  var $avatarImg = $('.avatarImg');
+  // Demo function for button clicks at the bottom of a tweet.  Change Later.
+  function hi() {
+    var elemId = $(this).parent().attr('id');
+    var tweetId = partseInt(elemId.replace('tweet-', ''));
+    var tweets = getSelectedTweets();
+    var tweet = tweets[tweetId];
+    console.log("hi", tweet);
+  }
 
-  // Append all components (Structure)
-  $newTweets.appendTo($feed);
-    $newTweetInput.appendTo($newTweets);
-    $newTweetButton.appendTo($newTweets);
-  $tweetList.appendTo($feed);
+  var onReplyClick = hi;
+  var onRetweetClick = hi;
+  var onLikeClick = hi;
+  var onMoreClick = hi;
 
-  
-  // Declare all functions
-  var addUserTweet = function() {
+  function onNewTweetClick() {
     var message = $newTweetInput.val();
     if (!message) {
       alert('Tweet cannot be blank!');
@@ -71,104 +35,73 @@ $(document).ready(function(){
     }
 
     var tweet = {};
-    tweet.user = 'Guest';
+    var userName = 'Guest';
+    tweet.user = userName;
     tweet.message = message;
     tweet.created_at = new Date();
 
     streams.home.push(tweet);
+    if (!streams.users.hasOwnProperty(userName)) {
+      streams.users[userName] = [];
+    }
+    streams.users[userName].push(tweet);
 
     $newTweetInput.val('');
-    updateTweets(state);   //Should I keep this here?
-  };
+    createTweetList(selectedUser);
+  }
 
-  var updateTweets = function(currentUser) {
+  function onUserClick() {
     $tweetList.html('');
-    
-    if (streams.users.hasOwnProperty(currentUser)) {
-      index = streams.users[currentUser].length - 1;
-    } else {
-      index = streams.home.length - 1;
-    }
-    
-    while (index >= 0) {
-      var tweet;
-      // tweet = currentUser === 'home' ? streams.home[index] : streams.users[currentUser][index];
-      if (currentUser === 'home') {
-        tweet = streams.home[index];
-      } else {
-        tweet = streams.users[currentUser][index];
+    selectedUser = $(this).text().trim();
+    createTweetList(selectedUser);
+    // createDashboard();                This function is not yet defined!
+  }
+
+  function createTweet(tweet, index) {
+    return $(
+      '<li class="tweet" id="tweet-' + index + '">' +
+        '<p class="tweet_heading">' +
+          '<span class="user">' + tweet.user + '</span>' +
+          '<span class="tweeted_at">@' + tweet.user + '</span>' +
+          '<span class="created_at">' + $.timeago(tweet.created_at) + '</span>' +
+        '</p>' +
+        '<p class="message">' + tweet.message + '</p>' +
+        '<button class="btn btn-primary reply">Reply Icon</button>' +
+        '<button class="btn btn-success retweet">Retweet Icon</button>' +
+        '<button class="btn btn-info like">Like Icon</button>' +
+        '<button class="btn btn-warning more">More Icon</button>' +
+      '</li>'
+    );
+  }
+
+  function createTweetList(currentUser) {
+    var tweets = getSelectedTweets();
+    var newTweets = [];
+
+    for (var i = tweets.length - 1; i >= 0; i--) {
+      if ($('#tweet-' + i).length === 0) {
+        var tweet = tweets[i];
+        var $tweet = createTweet(tweet, i);
+        newTweets.push($tweet);
       }
-
-      var $tweet = $(
-        '<li class="tweet">' +
-          
-          '<p class="tweet_heading">' + 
-            '<span class="user">' + tweet.user + '</span>' + 
-            '<span class="tweeted_at">' + ' @' + tweet.user + ' </span>' + 
-            '<span class="created_at">' + jQuery.timeago(tweet.created_at) + '</span>' +
-          '</p>' +
-
-          '<p class="message">' + tweet.message + '</p>' +
-  
-          '<button class="btn btn-primary reply">' + 'Reply Icon' + '</button>' +
-          '<button class="btn btn-success retweet">' + 'Retweet Icon' + '</button>' +
-          '<button class="btn btn-info like">' + 'Like Icon' + '</button>' +
-          '<button class="btn btn-warning more">' + 'More Icon' + '</button>' +
-  
-        '</li>');
-       
-      $tweet.appendTo($tweetList);
-      index -= 1;
     }
-    setupFeed();
-  };
+    $tweetList.prepend(newTweets);
 
-  var refineTweetList = function() {
-    state = $(this).text();
-    updateTweets(state);
-  };  
-  
-  var hi = function() {           // Make this do something valuable!!!
-    $(this).text('hi');
-  };
+    $('button.reply').click(onReplyClick);
+    $('button.retweet').click(onRetweetClick);
+    $('button.like').click(onLikeClick);
+    $('button.more').click(onMoreClick);
+    $('span.user').click(onUserClick);
+  }
 
-  var setupFeed = function() {
-    var $replyButton = $('.reply');
-    var $retweetButton = $('.retweet');
-    var $likeButton = $('.like');
-    var $moreButton = $('.more');
-    var $usernames = $('.user');
+  function createDashboard(link, img) {
+    $('#avatarLink').attr('href', '#');
+    $('#avatarImg').attr('src', 'samuel.jpg');
+  }
 
-    $newTweetInput.attr('placeholder', 'Type Tweet Here!');
-    
-    $newTweetButton.click(addUserTweet);
-    $usernames.click(refineTweetList);
-    $replyButton.click(hi);           // Need the setInterval to stop when clicked!!!
-    $retweetButton.click(hi);
-    $likeButton.click(hi);
-    $moreButton.click(hi);
-  };
+  $newTweetButton.click(onNewTweetClick);
 
-
-  // Create an init() function
-  var init = function() {
-    $avatarLink.attr('href', '#');
-    $avatarImg.attr('src', 'samuel.jpg');
-    // $newTweetInput.attr('placeholder', 'Type Tweet Here!');
-    // $newTweetButton.click(addUserTweet);
-    updateTweets(state);
-    setInterval(function() { updateTweets(state); }, 5000);
-  };
-  
-  // External/Global Event Handlers
-  // $newTweetButton.click(addUserTweet);
-
-  // Run init() 
-  // $body.html('');
-  // $avatarLink.attr('href', '#');
-  // $avatarImg.attr('src', 'samuel.jpg');
-  // $newTweetInput.attr('placeholder', 'Type Tweet Here!');
-
-  init();
-
+  createDashboard();
+  createTweetList();
+  setInterval(function() { createTweetList(selectedUser); }, 5000);
 });
